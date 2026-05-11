@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helpers
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    function isValidWeddingSettings(data) {
+      return data.coupleNames is string && data.coupleNames.size() > 0 &&
+             data.date is string &&
+             data.location is string;
+    }
+
+    function isValidGuestGroup(data) {
+      return data.familyName is string && data.familyName.size() <= 100 &&
+             data.guests is list && data.guests.size() <= 20;
+    }
+
+    // Wedding Settings
+    match /settings/event {
+      allow read: if true; // Publicly readable for the site
+      allow write: if isAdmin() && isValidWeddingSettings(incoming());
+    }
+
+    // Guest Groups
+    match /guestGroups/{groupId} {
+      allow read: if true; // Anyone with the link can see their group
+      allow create: if isAdmin() && isValidGuestGroup(incoming());
+      allow update: if (isAdmin() || (
+        // Guests can only update their own confirmation status
+        incoming().diff(existing()).affectedKeys().hasOnly(['guests', 'updatedAt']) &&
+        incoming().guests.size() == existing().guests.size()
+        // Here we'd ideally validate that only the 'confirmed' field changed in the list
+        // but Firestore rules have limits on list iteration.
+      )) && isValidGuestGroup(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Admin collection
+    match /admins/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+    }
+  }
+}

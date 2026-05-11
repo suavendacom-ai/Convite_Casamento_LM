@@ -1,0 +1,52 @@
+{
+  "entities": {
+    "weddingSettings": {
+      "title": "Configurações do Casamento",
+      "description": "Informações gerais do evento",
+      "type": "object",
+      "properties": {
+        "coupleNames": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "location": { "type": "string" },
+        "address": { "type": "string" },
+        "mapUrl": { "type": "string" },
+        "heroImageUrl": { "type": "string" },
+        "welcomeMessage": { "type": "string" }
+      },
+      "required": ["coupleNames", "date", "location"]
+    },
+    "guestGroup": {
+      "title": "Grupo de Convidados",
+      "description": "Representa uma família ou grupo com um token único",
+      "type": "object",
+      "properties": {
+        "token": { "type": "string" },
+        "familyName": { "type": "string" },
+        "guests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "confirmed": { "type": "boolean" }
+            }
+          }
+        },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["token", "familyName", "guests"]
+    }
+  },
+  "firestore": {
+    "settings/event": {
+      "schema": "weddingSettings",
+      "description": "Configurações únicas do evento"
+    },
+    "guestGroups": {
+      "schema": "guestGroup",
+      "description": "Coleção de grupos de convidados"
+    }
+  }
+}
