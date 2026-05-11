@@ -1,34 +1,47 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
-import firebaseConfig from './firebase-applet-config.json';
+import configData from './firebase-applet-config.json';
+
+// Support both JSON config (AI Studio) and Env Vars (Vercel)
+const firebaseConfig: any = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || configData.apiKey,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || configData.authDomain,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || configData.projectId,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || configData.storageBucket,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || configData.messagingSenderId,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || configData.appId,
+  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || (configData as any).firestoreDatabaseId,
+};
 
 let app;
 let db: any;
 let auth: any;
 let googleProvider: any;
 
-try {
-  // Check if config is dummy
-  if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'REQUIRED_TO_START') {
-    throw new Error('Firebase configuration is incomplete. Please complete setup in the Firebase panel.');
+const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== 'REQUIRED_TO_START';
+
+if (isConfigured) {
+  try {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+    auth = getAuth(app);
+    googleProvider = new GoogleAuthProvider();
+  } catch (error) {
+    console.warn("Firebase initialization failed:", error);
+    db = { type: 'mock' };
+    auth = { currentUser: null };
   }
-  app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  auth = getAuth(app);
-  googleProvider = new GoogleAuthProvider();
-} catch (error) {
-  console.warn("Firebase initialization failed:", error);
-  // Provide mock objects to prevent total breakdown, though functionality won't work
-  db = {};
+} else {
+  db = { type: 'mock' };
   auth = { currentUser: null };
 }
 
-export { db, auth, googleProvider };
+export { db, auth, googleProvider, isConfigured };
 
 export async function loginWithGoogle() {
-  if (!auth.signInWithPopup) {
-    alert("Firebase não está configurado. Não é possível fazer login.");
+  if (!isConfigured || !auth.signInWithPopup) {
+    alert("Firebase não está configurado. Configure as variáveis de ambiente VITE_FIREBASE_* no Vercel ou ative o Firebase no AI Studio.");
     return null;
   }
   try {
@@ -41,13 +54,11 @@ export async function loginWithGoogle() {
 }
 
 async function testConnection() {
-  if (!db.type) return; // Not initialized properly
+  if (!isConfigured || !db.type || db.type === 'mock') return;
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
   } catch (error) {
-    if(error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration.");
-    }
+    console.warn("Firebase connection test failed. This is expected if rules aren't deployed yet.");
   }
 }
 testConnection();

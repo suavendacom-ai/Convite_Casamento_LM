@@ -4,6 +4,8 @@ import { MapPin, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { Button, Input, Card } from './components/UI';
 import { WeddingSettings, GuestGroup } from './types';
 import { WeddingService } from './services/weddingService';
+import { auth, loginWithGoogle } from './lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function App() {
   const [view, setView] = React.useState<'landing' | 'rsvp' | 'admin'>('landing');
@@ -11,6 +13,14 @@ export default function App() {
   const [currentGroup, setCurrentGroup] = React.useState<GuestGroup | null>(null);
   const [settings, setSettings] = React.useState<WeddingSettings | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [user, setUser] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+    });
+    return () => unsub();
+  }, []);
 
   React.useEffect(() => {
     // URL token handling
@@ -83,7 +93,7 @@ export default function App() {
     <div className="min-h-screen text-stone-800">
       {view === 'landing' && <LandingView settings={settings!} onSearch={handleTokenSearch} />}
       {view === 'rsvp' && currentGroup && <RSVPView settings={settings!} group={currentGroup} onBack={() => setView('landing')} />}
-      {view === 'admin' && <AdminDashboard settings={settings!} onUpdateSettings={setSettings} />}
+      {view === 'admin' && <AdminDashboard settings={settings!} onUpdateSettings={setSettings} user={user} />}
     </div>
   );
 }
@@ -269,32 +279,49 @@ function RSVPView({ settings, group, onBack }: { settings: WeddingSettings, grou
 
 import { QRCodeSVG } from 'qrcode.react';
 
-function AdminDashboard({ settings, onUpdateSettings }: { settings: WeddingSettings, onUpdateSettings: (s: WeddingSettings) => void }) {
+function AdminDashboard({ settings, onUpdateSettings, user }: { settings: WeddingSettings, onUpdateSettings: (s: WeddingSettings) => void, user: any }) {
   const [groups, setGroups] = React.useState<GuestGroup[]>([]);
   const [newGroupName, setNewGroupName] = React.useState('');
   const [newGuestNames, setNewGuestNames] = React.useState('');
   const [activeTab, setActiveTab] = React.useState<'groups' | 'settings'>('groups');
   const [loading, setLoading] = React.useState(true);
   const [localSettings, setLocalSettings] = React.useState(settings);
+  const [authError, setAuthError] = React.useState(false);
 
   React.useEffect(() => {
-    loadGroups();
-  }, []);
+    if (user) {
+      loadGroups();
+    }
+  }, [user]);
 
   const loadGroups = async () => {
-    const gs = await WeddingService.getAllGroups();
-    setGroups(gs);
-    setLoading(false);
+    try {
+      const gs = await WeddingService.getAllGroups();
+      setGroups(gs);
+      setAuthError(false);
+    } catch (e) {
+      console.error(e);
+      setAuthError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCreateGroup = async () => {
-    const guests = newGuestNames.split(',').map(n => ({ name: n.trim(), confirmed: null }));
-    const token = await WeddingService.createGroup({ familyName: newGroupName, guests });
-    if (token) {
-      alert(`Grupo criado! Código: ${token}`);
-      setNewGroupName('');
-      setNewGuestNames('');
-      loadGroups();
+    try {
+      const guests = newGuestNames.split(',').map(n => ({ name: n.trim(), confirmed: null }));
+      const token = await WeddingService.createGroup({ familyName: newGroupName, guests });
+      if (token) {
+        alert(`Grupo criado! Código: ${token}`);
+        setNewGroupName('');
+        setNewGuestNames('');
+        loadGroups();
+      } else {
+        alert('Erro ao criar grupo. Verifique se o Firebase está configurado corretamente.');
+      }
+    } catch (e) {
+      alert('Falha na comunicação com o banco de dados. O Firebase está ativo?');
+      console.error(e);
     }
   };
 
@@ -307,6 +334,34 @@ function AdminDashboard({ settings, onUpdateSettings }: { settings: WeddingSetti
   const confirmedCount = groups.reduce((acc, g) => acc + g.guests.filter(guest => guest.confirmed === true).length, 0);
   const declinedCount = groups.reduce((acc, g) => acc + g.guests.filter(guest => guest.confirmed === false).length, 0);
   const pendingCount = groups.reduce((acc, g) => acc + g.guests.filter(guest => guest.confirmed === null).length, 0);
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
+        <Card className="max-w-md w-full text-center space-y-6">
+          <h1 className="text-3xl text-primary">Acesso Restrito</h1>
+          <p className="text-stone-500">Faça login com sua conta Google para acessar o painel de administração.</p>
+          <Button onClick={() => loginWithGoogle()} className="w-full">Fazer Login</Button>
+        </Card>
+      </div>
+    );
+  }
+
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
+        <Card className="max-w-md w-full text-center space-y-6">
+          <h1 className="text-3xl text-red-600">Acesso Negado</h1>
+          <p className="text-stone-500">Você não tem permissão para acessar esta área.</p>
+          <div className="p-4 bg-stone-50 rounded-xl text-left">
+            <p className="text-xs text-stone-400 uppercase mb-1">Seu ID de Usuário:</p>
+            <code className="text-[10px] break-all">{user.uid}</code>
+          </div>
+          <p className="text-xs text-stone-400">Adicione este ID à coleção 'admins' no console do Firebase.</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-stone-100 py-12 px-6">
