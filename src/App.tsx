@@ -488,9 +488,23 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
               <p className="text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded mt-1 border border-amber-100 flex items-center gap-1 w-fit">⚠️ MODO LOCAL - Dados salvos apenas neste navegador</p>
             ) : (
               <div className="flex flex-col gap-1">
-                <p className="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded mt-1 border border-green-100 flex items-center gap-1 w-fit">✅ CONECTADO AO FIREBASE</p>
-                {user && <p className="text-[9px] text-stone-400 font-mono">UID: {user.uid}</p>}
-                {masterAuth && <p className="text-[9px] text-blue-500 font-bold uppercase tracking-tighter">Acesso via Senha Mestre</p>}
+                {user ? (
+                  <>
+                    <p className="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded mt-1 border border-green-100 flex items-center gap-1 w-fit">✅ CONECTADO AO FIREBASE</p>
+                    <p className="text-[9px] text-stone-400 font-mono">Autenticado como: {user.email}</p>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-100 flex items-center gap-1 w-fit">⚠️ MODO OFFLINE (Acesso via Senha)</p>
+                    <button 
+                      onClick={() => loginWithGoogle()}
+                      className="text-[10px] bg-primary text-white px-2 py-0.5 rounded font-bold hover:bg-primary/90 transition-colors"
+                    >
+                      Conectar ao Firebase
+                    </button>
+                  </div>
+                )}
+                {masterAuth && !user && <p className="text-[8px] text-red-500 font-bold uppercase mt-1">Sincronização desativada. Use o botão acima para salvar na nuvem!</p>}
               </div>
             )}
           </div>

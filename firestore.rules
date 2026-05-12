@@ -10,8 +10,8 @@ service cloud.firestore {
     function isSignedIn() { return request.auth != null; }
     function isAdmin() { 
       return isSignedIn() && (
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
-        request.auth.uid == "Zgud9I2UsESOXcty3vx6UOm5ahG2"
+        request.auth.uid == "Zgud9I2UsESOXcty3vx6UOm5ahG2" ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
       ); 
     }
     function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
