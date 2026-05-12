@@ -72,7 +72,11 @@ export default function App() {
 
     try {
       const s = await WeddingService.getSettings();
-      if (s) setSettings(s);
+      if (s) {
+        // Force 18:30 if it's still 16:00
+        if (s.time === '16:00') s.time = '18:30';
+        setSettings(s);
+      }
     } catch (e) {
       console.error("Failed to load settings, using defaults", e);
     } finally {
