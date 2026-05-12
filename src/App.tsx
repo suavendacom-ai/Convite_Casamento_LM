@@ -4,7 +4,7 @@ import { MapPin, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { Button, Input, Card } from './components/UI';
 import { WeddingSettings, GuestGroup } from './types';
 import { WeddingService } from './services/weddingService';
-import { auth, loginWithGoogle } from './lib/firebase';
+import { auth, loginWithGoogle, isConfigured } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
 export default function App() {
