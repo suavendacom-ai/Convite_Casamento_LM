@@ -24,6 +24,10 @@ export default function App() {
   }, []);
 
   React.useEffect(() => {
+    document.title = "Luana & Murilo - Convite de Casamento";
+  }, []);
+
+  React.useEffect(() => {
     if (settings?.coupleNames) {
       document.title = settings.coupleNames;
     }
