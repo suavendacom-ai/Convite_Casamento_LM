@@ -21,4 +21,5 @@ export interface WeddingSettings {
   heroImageUrl: string;
   welcomeMessage: string;
   photos?: string[];
+  carouselInterval?: number;
 }

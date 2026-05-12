@@ -20,12 +20,19 @@ const DEFAULT_PHOTOS = [
   'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&q=80&w=800',
 ];
 
-function PhotoCarousel({ photos }: { photos?: string[] }) {
+function PhotoCarousel({ photos, interval = 2000 }: { photos?: string[], interval?: number }) {
   const [index, setIndex] = React.useState(0);
   const displayPhotos = photos && photos.length > 0 ? photos : DEFAULT_PHOTOS;
 
-  const next = () => setIndex((prev) => (prev + 1) % displayPhotos.length);
+  const next = React.useCallback(() => setIndex((prev) => (prev + 1) % displayPhotos.length), [displayPhotos.length]);
   const prev = () => setIndex((prev) => (prev - 1 + displayPhotos.length) % displayPhotos.length);
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      next();
+    }, interval);
+    return () => clearInterval(timer);
+  }, [next, interval]);
 
   return (
     <div className="relative w-full overflow-hidden py-10">
@@ -156,7 +163,8 @@ export default function App() {
       address: 'Joinville, SC',
       mapUrl: 'https://maps.google.com',
       heroImageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=2000',
-      welcomeMessage: 'Estamos muito felizes em compartilhar este dia especial com você!!'
+      welcomeMessage: 'Estamos muito felizes em compartilhar este dia especial com você!!',
+      carouselInterval: 2000
     };
     setSettings(defaultSettings);
 
@@ -327,7 +335,7 @@ function LandingView({ settings, onSearch }: { settings: WeddingSettings, onSear
             </p>
           </div>
           
-          <PhotoCarousel photos={settings.photos} />
+          <PhotoCarousel photos={settings.photos} interval={settings.carouselInterval} />
         </div>
       </div>
       
@@ -621,7 +629,6 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
             <p className="text-xs text-amber-700">Para entrar agora sem configurar o banco, use a senha <b>25155295</b> na tela de login anterior.</p>
             <Button 
               variant="outline" 
-              size="sm" 
               className="mt-3 w-full"
               onClick={() => {
                 const pass = prompt("Digite a senha mestre:");
@@ -845,6 +852,16 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
               </div>
               <div className="md:col-span-2">
                 <Input label="Mensagem de Boas-vindas" value={localSettings.welcomeMessage} onChange={(v) => setLocalSettings({...localSettings, welcomeMessage: v})} />
+              </div>
+              
+              <div className="md:col-span-2">
+                <Input 
+                  label="Velocidade das Fotos (milissegundos)" 
+                  type="number" 
+                  value={localSettings.carouselInterval?.toString() || '2000'} 
+                  onChange={(v) => setLocalSettings({...localSettings, carouselInterval: parseInt(v) || 2000})} 
+                  placeholder="2000 = 2 segundos"
+                />
               </div>
               
               <div className="md:col-span-2 pt-4 border-t border-stone-100">
