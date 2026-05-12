@@ -5,6 +5,7 @@ import {
   getDocs, 
   setDoc, 
   updateDoc, 
+  deleteDoc,
   query, 
   where,
   serverTimestamp 
@@ -180,6 +181,40 @@ export const WeddingService = {
       console.error("Firestore sync failed:", error);
       // We return the token because it's saved locally, but we should probably alert the user
       throw new Error("Local save OK, but failed to sync to Cloud. Check Firebase rules.");
+    }
+  },
+
+  async deleteGroup(token: string) {
+    // Delete local
+    const groups = this._getLocalGroups();
+    const filtered = groups.filter(g => g.id !== token);
+    this._saveLocalGroups(filtered);
+
+    try {
+      if (!db || !db.type || db.type === 'mock') return;
+      await deleteDoc(doc(db, 'guestGroups', token));
+    } catch (error) {
+      console.error("Failed to delete group from cloud:", error);
+    }
+  },
+
+  async updateGroup(token: string, group: Partial<GuestGroup>) {
+    // Update local
+    const groups = this._getLocalGroups();
+    const idx = groups.findIndex(g => g.id === token);
+    if (idx !== -1) {
+      groups[idx] = { ...groups[idx], ...group };
+      this._saveLocalGroups(groups);
+    }
+
+    try {
+      if (!db || !db.type || db.type === 'mock') return;
+      await updateDoc(doc(db, 'guestGroups', token), {
+        ...group,
+        updatedAt: serverTimestamp()
+      });
+    } catch (error) {
+      console.error("Failed to update group in cloud:", error);
     }
   }
 };

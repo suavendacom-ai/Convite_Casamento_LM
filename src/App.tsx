@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { MapPin, Calendar, Clock, ChevronRight } from 'lucide-react';
+import { MapPin, Calendar, Clock, ChevronRight, Trash2, Edit, Copy, Check } from 'lucide-react';
 import { Button, Input, Card } from './components/UI';
 import { WeddingSettings, GuestGroup } from './types';
 import { WeddingService } from './services/weddingService';
@@ -310,6 +310,8 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
   const [groups, setGroups] = React.useState<GuestGroup[]>([]);
   const [newGroupName, setNewGroupName] = React.useState('');
   const [newGuestNames, setNewGuestNames] = React.useState('');
+  const [editingGroup, setEditingGroup] = React.useState<GuestGroup | null>(null);
+  const [copyingId, setCopyingId] = React.useState<string | null>(null);
   const [activeTab, setActiveTab] = React.useState<'groups' | 'settings'>('groups');
   const [loading, setLoading] = React.useState(true);
   const [localSettings, setLocalSettings] = React.useState(settings);
@@ -350,6 +352,47 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
       console.error(e);
       loadGroups();
     }
+  };
+
+  const handleUpdateGroup = async () => {
+    if (!editingGroup) return;
+    try {
+      const guests = newGuestNames.split(',').map(n => ({ 
+        name: n.trim(), 
+        confirmed: editingGroup.guests.find(g => g.name === n.trim())?.confirmed ?? null 
+      }));
+      await WeddingService.updateGroup(editingGroup.id, { familyName: newGroupName, guests });
+      setEditingGroup(null);
+      setNewGroupName('');
+      setNewGuestNames('');
+      loadGroups();
+      alert('Grupo atualizado!');
+    } catch (e: any) {
+      alert(`Falha ao atualizar grupo: ${e.message}`);
+    }
+  };
+
+  const handleDeleteGroup = async (token: string) => {
+    if (!confirm('Tem certeza que deseja excluir este convite?')) return;
+    try {
+      await WeddingService.deleteGroup(token);
+      loadGroups();
+    } catch (e: any) {
+      alert(`Falha ao excluir: ${e.message}`);
+    }
+  };
+
+  const handleCopyLink = (token: string) => {
+    const link = `${window.location.origin}/?t=${token}`;
+    navigator.clipboard.writeText(link);
+    setCopyingId(token);
+    setTimeout(() => setCopyingId(null), 2000);
+  };
+
+  const startEditGroup = (g: GuestGroup) => {
+    setEditingGroup(g);
+    setNewGroupName(g.familyName);
+    setNewGuestNames(g.guests.map(guest => guest.name).join(', '));
   };
 
   const handleSaveSettings = async () => {
@@ -454,7 +497,6 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
             <p className="text-sm text-amber-800 font-bold mb-2">Dica de Atalho:</p>
             <p className="text-xs text-amber-700">Para entrar agora sem configurar o banco, use a senha <b>25155295</b> na tela de login anterior.</p>
             <Button 
-              hidden 
               variant="outline" 
               size="sm" 
               className="mt-3 w-full"
@@ -594,11 +636,28 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
                                   />
                                 ))}
                               </div>
-                              <div className="group relative">
-                                <QRCodeSVG value={`${window.location.origin}/?t=${g.id}`} size={32} />
-                                <div className="absolute hidden group-hover:block bottom-full mb-1 bg-stone-900 text-white text-[10px] p-2 rounded whitespace-nowrap z-50">
-                                  {window.location.origin}/?t={g.id}
-                                </div>
+                              <div className="flex items-center gap-1">
+                                <button 
+                                  onClick={() => handleCopyLink(g.id)}
+                                  className={`p-1.5 rounded-lg transition-colors ${copyingId === g.id ? 'bg-green-100 text-green-600' : 'hover:bg-stone-100 text-stone-400'}`}
+                                  title="Copiar Link"
+                                >
+                                  {copyingId === g.id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                                </button>
+                                <button 
+                                  onClick={() => startEditGroup(g)}
+                                  className="p-1.5 hover:bg- stone-100 text-stone-400 rounded-lg transition-colors"
+                                  title="Editar"
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                </button>
+                                <button 
+                                  onClick={() => handleDeleteGroup(g.id)}
+                                  className="p-1.5 hover:bg-red-50 text-red-300 hover:text-red-600 rounded-lg transition-colors"
+                                  title="Excluir"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
                               </div>
                             </div>
                           </td>
@@ -612,7 +671,7 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
 
             <div className="space-y-8">
               <Card>
-                <h3 className="text-xl mb-6">Novo Grupo</h3>
+                <h3 className="text-xl mb-6">{editingGroup ? 'Editar Grupo' : 'Novo Grupo'}</h3>
                 <div className="space-y-4">
                   <Input label="Nome da Família" value={newGroupName} onChange={setNewGroupName} placeholder="Ex: Silva" />
                   <Input 
@@ -621,9 +680,20 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
                     onChange={setNewGuestNames} 
                     placeholder="João, Maria, José" 
                   />
-                  <Button variant="primary" className="w-full" onClick={handleCreateGroup} disabled={!newGroupName || !newGuestNames}>
-                    Gerar Convite
-                  </Button>
+                  <div className="flex gap-2">
+                    {editingGroup && (
+                      <Button variant="outline" className="flex-1" onClick={() => {
+                        setEditingGroup(null);
+                        setNewGroupName('');
+                        setNewGuestNames('');
+                      }}>
+                        Cancelar
+                      </Button>
+                    )}
+                    <Button variant="primary" className="flex-1" onClick={editingGroup ? handleUpdateGroup : handleCreateGroup} disabled={!newGroupName || !newGuestNames}>
+                      {editingGroup ? 'Salvar Alterações' : 'Gerar Convite'}
+                    </Button>
+                  </div>
                 </div>
               </Card>
 
