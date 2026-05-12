@@ -11,7 +11,7 @@ const firebaseConfig: any = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || import.meta.env.VITE_STORAGE_BUCKET || import.meta.env.VITE_storageBucket || configData.storageBucket,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || import.meta.env.VITE_MESSAGING_SENDER_ID || import.meta.env.VITE_messagingSenderId || configData.messagingSenderId,
   appId: import.meta.env.VITE_FIREBASE_APP_ID || import.meta.env.VITE_APP_ID || import.meta.env.VITE_appId || configData.appId,
-  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || import.meta.env.VITE_DATABASE_ID || import.meta.env.VITE_databaseId || (configData as any).firestoreDatabaseId,
+  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || import.meta.env.VITE_DATABASE_ID || import.meta.env.VITE_firestoreDatabaseId || import.meta.env.VITE_databaseId || (configData as any).firestoreDatabaseId,
 };
 
 const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== 'REQUIRED_TO_START' && firebaseConfig.apiKey !== '';
@@ -41,7 +41,7 @@ export { db, auth, googleProvider, isConfigured };
 
 export async function loginWithGoogle() {
   if (!isConfigured || !auth.signInWithPopup) {
-    alert("Firebase não está configurado. Configure as variáveis de ambiente VITE_FIREBASE_* no Vercel ou ative o Firebase no AI Studio.");
+    console.error("Firebase not configured properly");
     return null;
   }
   try {

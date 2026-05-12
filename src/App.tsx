@@ -100,7 +100,14 @@ export default function App() {
     <div className="min-h-screen text-stone-800">
       {view === 'landing' && <LandingView settings={settings!} onSearch={handleTokenSearch} />}
       {view === 'rsvp' && currentGroup && <RSVPView settings={settings!} group={currentGroup} onBack={() => setView('landing')} />}
-      {view === 'admin' && <AdminDashboard settings={settings!} onUpdateSettings={setSettings} user={user} />}
+      {view === 'admin' && (
+        <AdminDashboard 
+          settings={settings!} 
+          onUpdateSettings={setSettings} 
+          user={user} 
+          isConfigured={isConfigured}
+        />
+      )}
     </div>
   );
 }
@@ -286,7 +293,7 @@ function RSVPView({ settings, group, onBack }: { settings: WeddingSettings, grou
 
 import { QRCodeSVG } from 'qrcode.react';
 
-function AdminDashboard({ settings, onUpdateSettings, user }: { settings: WeddingSettings, onUpdateSettings: (s: WeddingSettings) => void, user: any }) {
+function AdminDashboard({ settings, onUpdateSettings, user, isConfigured }: { settings: WeddingSettings, onUpdateSettings: (s: WeddingSettings) => void, user: any, isConfigured: boolean }) {
   const [groups, setGroups] = React.useState<GuestGroup[]>([]);
   const [newGroupName, setNewGroupName] = React.useState('');
   const [newGuestNames, setNewGuestNames] = React.useState('');
@@ -342,13 +349,45 @@ function AdminDashboard({ settings, onUpdateSettings, user }: { settings: Weddin
   const declinedCount = groups.reduce((acc, g) => acc + g.guests.filter(guest => guest.confirmed === false).length, 0);
   const pendingCount = groups.reduce((acc, g) => acc + g.guests.filter(guest => guest.confirmed === null).length, 0);
 
+  if (!isConfigured) {
+    return (
+      <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6 text-center">
+        <Card className="max-w-md w-full space-y-6">
+          <h1 className="text-3xl text-red-600 font-serif">Firebase não Configurado</h1>
+          <p className="text-stone-500">
+            Detectamos que o Firebase ainda não está ativo nesta versão do site (Vercel).
+          </p>
+          <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-left text-sm text-amber-800 space-y-3">
+            <p className="font-bold">Atenção: Você precisa clicar em REDEPLOY!</p>
+            <ol className="list-decimal ml-4 space-y-1">
+              <li>No painel da Vercel, vá na aba <b>Deployments</b>.</li>
+              <li>Clique nos três pontinhos (...) do último deploy e selecione <b>Redeploy</b>.</li>
+              <li>As variáveis só funcionam depois que o site é reconstruído.</li>
+            </ol>
+          </div>
+          <Button onClick={() => window.location.reload()} className="w-full">Já fiz o redeploy, atualizar</Button>
+        </Card>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
         <Card className="max-w-md w-full text-center space-y-6">
           <h1 className="text-3xl text-primary">Acesso Restrito</h1>
           <p className="text-stone-500">Faça login com sua conta Google para acessar o painel de administração.</p>
-          <Button onClick={() => loginWithGoogle()} className="w-full">Fazer Login</Button>
+          <Button 
+            onClick={async () => {
+              const u = await loginWithGoogle();
+              if (!u) {
+                alert("Erro: O Firebase não parece estar configurado no site. Se você adicionou as variáveis na Vercel, você PRECISA fazer um REDEPLOY (veja as instruções no painel da Vercel).");
+              }
+            }} 
+            className="w-full"
+          >
+            Fazer Login
+          </Button>
         </Card>
       </div>
     );
@@ -363,20 +402,26 @@ function AdminDashboard({ settings, onUpdateSettings, user }: { settings: Weddin
           <div className="p-4 bg-stone-50 rounded-xl text-left border border-stone-200">
             <p className="text-xs text-stone-400 uppercase font-medium mb-2">Configure no Firebase Console:</p>
             <ol className="text-sm text-stone-600 space-y-2 list-decimal ml-4">
-              <li>Vá em <b>Firestore Database</b></li>
-              <li>Crie uma coleção chamada <code className="bg-stone-200 px-1 rounded text-xs">admins</code></li>
-              <li>Crie um documento com o ID EXATO abaixo:</li>
+              <li>Abra o <b>Firestore Database</b></li>
+              <li>Clique em <b>Iniciar uma coleção</b> (se for a primeira) ou <b>Adicionar coleção</b></li>
+              <li>Nome da coleção: <code className="bg-stone-200 px-1 rounded text-xs">admins</code></li>
+              <li>No campo <b>ID do Documento</b>, NÃO escreva "Admin". Cole o código abaixo:</li>
             </ol>
-            <div className="mt-4 bg-white p-3 rounded border border-stone-200 flex items-center justify-between group">
-              <code className="text-xs font-mono text-primary font-bold break-all">{user.uid}</code>
+            <div className="mt-4 bg-white p-3 rounded border border-red-200 flex items-center justify-between group bg-red-50">
+              <code className="text-xs font-mono text-red-600 font-bold break-all">{user.uid}</code>
               <button 
-                onClick={() => navigator.clipboard.writeText(user.uid)}
-                className="text-[10px] text-stone-400 hover:text-primary underline cursor-pointer"
+                onClick={() => {
+                  navigator.clipboard.writeText(user.uid);
+                  alert("Código copiado! Use este código como o 'ID do Documento' na coleção 'admins'.");
+                }}
+                className="text-[10px] text-red-400 hover:text-red-600 transition-colors cursor-pointer flex items-center gap-1"
               >
-                Copiar
+                Copiar ID
               </button>
             </div>
-            <p className="text-xs text-stone-400 mt-3 italic">Dica: Se você criou um documento chamado "Admin", delete-o e crie um novo usando o código acima como ID do documento.</p>
+            <p className="text-xs text-red-700 mt-4 font-bold border-t border-red-100 pt-2">
+              DICA: Não escreva "Admin" no nome do documento. Delete o que você criou e crie um novo onde o NOME DO DOCUMENTO seja o código vermelho acima.
+            </p>
           </div>
           <Button onClick={() => window.location.reload()} variant="outline" className="w-full">Já configurei, atualizar</Button>
         </Card>
