@@ -867,11 +867,11 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
                     </div>
                   ))}
                   <label className="aspect-square rounded-lg border-2 border-dashed border-stone-200 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-stone-50 transition-all">
-                    <Input 
+                    <input 
                       type="file" 
                       className="hidden" 
                       accept="image/*"
-                      onChange={(e: any) => {
+                      onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
                           if (file.size > 500000) {
@@ -881,8 +881,8 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
                           const reader = new FileReader();
                           reader.onloadend = () => {
                             const base64 = reader.result as string;
-                            const newPhotos = [...(localSettings.photos || []), base64];
-                            setLocalSettings({...localSettings, photos: newPhotos});
+                            const currentPhotos = localSettings.photos || [];
+                            setLocalSettings({...localSettings, photos: [...currentPhotos, base64]});
                           };
                           reader.readAsDataURL(file);
                         }
