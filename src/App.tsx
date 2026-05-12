@@ -430,7 +430,7 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
     );
   }
 
-  if (authError && !masterAuth) {
+  if (authError && !masterAuth && user?.uid !== "Zgud9I2UsESOXcty3vx6UOm5ahG2") {
     return (
       <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
         <Card className="max-w-md w-full text-center space-y-6">
@@ -485,7 +485,11 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
         <header className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex flex-col">
             <h1 className="text-4xl text-primary">Dashboard de Controle</h1>
-            {!isConfigured && <p className="text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded mt-1 border border-amber-100 flex items-center gap-1 w-fit">⚠️ MODO OFFLINE ATIVO - Dados salvos apenas neste navegador</p>}
+            {!isConfigured ? (
+              <p className="text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded mt-1 border border-amber-100 flex items-center gap-1 w-fit">⚠️ AMBIENTE NÃO CONFIGURADO - Redirecionando para modo local</p>
+            ) : (
+              <p className="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded mt-1 border border-green-100 flex items-center gap-1 w-fit">✅ CONECTADO AO FIREBASE</p>
+            )}
           </div>
           <div className="flex gap-2 bg-white p-1 rounded-2xl shadow-sm">
             <button 
