@@ -848,9 +848,56 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
               </div>
               
               <div className="md:col-span-2 pt-4 border-t border-stone-100">
-                <p className="text-sm font-bold mb-2">Fotos do Carrossel (URLs separadas por vírgula)</p>
+                <p className="text-sm font-bold mb-4">Fotos do Carrossel</p>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
+                  {(localSettings.photos || []).map((url, i) => (
+                    <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-stone-200 group">
+                      <img src={url} className="w-full h-full object-cover" alt="" />
+                      <button 
+                        onClick={() => {
+                          const newPhotos = [...(localSettings.photos || [])];
+                          newPhotos.splice(i, 1);
+                          setLocalSettings({...localSettings, photos: newPhotos});
+                        }}
+                        className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                  <label className="aspect-square rounded-lg border-2 border-dashed border-stone-200 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-stone-50 transition-all">
+                    <Input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={(e: any) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          if (file.size > 500000) {
+                            alert("Foto muito pesada! Tente uma imagem com menos de 500kb.");
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            const base64 = reader.result as string;
+                            const newPhotos = [...(localSettings.photos || []), base64];
+                            setLocalSettings({...localSettings, photos: newPhotos});
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                    <div className="text-stone-400 flex flex-col items-center">
+                      <Edit className="w-5 h-5 mb-1" />
+                      <span className="text-[10px]">Add Foto</span>
+                    </div>
+                  </label>
+                </div>
+
+                <p className="text-sm font-bold mb-2">Ou cole URLs (separadas por vírgula)</p>
                 <textarea 
-                  className="w-full h-32 p-3 text-sm border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full h-24 p-3 text-sm border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20"
                   value={localSettings.photos?.join(', ') || ''}
                   onChange={e => {
                     const urls = e.target.value.split(',').map(s => s.trim()).filter(s => s !== '');
@@ -858,7 +905,7 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
                   }}
                   placeholder="https://imagem1.jpg, https://imagem2.jpg..."
                 />
-                <p className="text-[10px] text-stone-400 mt-1">Dica: Use links de imagens públicas do Google Drive, Dropbox ou similares.</p>
+                <p className="text-[10px] text-stone-400 mt-1">Dica: Fotos carregadas diretamente do PC podem ocupar muito espaço. Se possível, use links do Google Drive/Instagram.</p>
               </div>
             </div>
             <Button variant="primary" className="w-full py-4" onClick={handleSaveSettings}>
