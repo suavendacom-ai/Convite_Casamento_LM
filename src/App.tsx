@@ -358,13 +358,27 @@ function AdminDashboard({ settings, onUpdateSettings, user }: { settings: Weddin
     return (
       <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
         <Card className="max-w-md w-full text-center space-y-6">
-          <h1 className="text-3xl text-red-600">Acesso Negado</h1>
-          <p className="text-stone-500">Você não tem permissão para acessar esta área.</p>
-          <div className="p-4 bg-stone-50 rounded-xl text-left">
-            <p className="text-xs text-stone-400 uppercase mb-1">Seu ID de Usuário:</p>
-            <code className="text-[10px] break-all">{user.uid}</code>
+          <h1 className="text-3xl text-red-600 font-serif">Acesso Negado</h1>
+          <p className="text-stone-500">Você fez login, mas seu usuário ainda não tem permissão de administrador no banco de dados.</p>
+          <div className="p-4 bg-stone-50 rounded-xl text-left border border-stone-200">
+            <p className="text-xs text-stone-400 uppercase font-medium mb-2">Configure no Firebase Console:</p>
+            <ol className="text-sm text-stone-600 space-y-2 list-decimal ml-4">
+              <li>Vá em <b>Firestore Database</b></li>
+              <li>Crie uma coleção chamada <code className="bg-stone-200 px-1 rounded text-xs">admins</code></li>
+              <li>Crie um documento com o ID EXATO abaixo:</li>
+            </ol>
+            <div className="mt-4 bg-white p-3 rounded border border-stone-200 flex items-center justify-between group">
+              <code className="text-xs font-mono text-primary font-bold break-all">{user.uid}</code>
+              <button 
+                onClick={() => navigator.clipboard.writeText(user.uid)}
+                className="text-[10px] text-stone-400 hover:text-primary underline cursor-pointer"
+              >
+                Copiar
+              </button>
+            </div>
+            <p className="text-xs text-stone-400 mt-3 italic">Dica: Se você criou um documento chamado "Admin", delete-o e crie um novo usando o código acima como ID do documento.</p>
           </div>
-          <p className="text-xs text-stone-400">Adicione este ID à coleção 'admins' no console do Firebase.</p>
+          <Button onClick={() => window.location.reload()} variant="outline" className="w-full">Já configurei, atualizar</Button>
         </Card>
       </div>
     );

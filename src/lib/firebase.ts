@@ -11,15 +11,15 @@ const firebaseConfig: any = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || import.meta.env.VITE_STORAGE_BUCKET || import.meta.env.VITE_storageBucket || configData.storageBucket,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || import.meta.env.VITE_MESSAGING_SENDER_ID || import.meta.env.VITE_messagingSenderId || configData.messagingSenderId,
   appId: import.meta.env.VITE_FIREBASE_APP_ID || import.meta.env.VITE_APP_ID || import.meta.env.VITE_appId || configData.appId,
-  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || import.meta.env.VITE_DATABASE_ID || import.meta.env.VITE_firestoreDatabaseId || (configData as any).firestoreDatabaseId,
+  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || import.meta.env.VITE_DATABASE_ID || import.meta.env.VITE_databaseId || (configData as any).firestoreDatabaseId,
 };
 
-let app;
+const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== 'REQUIRED_TO_START' && firebaseConfig.apiKey !== '';
+
+let app: any;
 let db: any;
 let auth: any;
 let googleProvider: any;
-
-const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== 'REQUIRED_TO_START';
 
 if (isConfigured) {
   try {
