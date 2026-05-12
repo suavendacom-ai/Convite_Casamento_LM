@@ -20,4 +20,5 @@ export interface WeddingSettings {
   mapUrl: string;
   heroImageUrl: string;
   welcomeMessage: string;
+  photos?: string[];
 }

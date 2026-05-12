@@ -1,11 +1,101 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { MapPin, Calendar, Clock, ChevronRight, Trash2, Edit, Copy, Check, Car } from 'lucide-react';
+import { MapPin, Calendar, Clock, ChevronRight, Trash2, Edit, Copy, Check, Car, ChevronLeft } from 'lucide-react';
 import { Button, Input, Card } from './components/UI';
 import { WeddingSettings, GuestGroup } from './types';
 import { WeddingService } from './services/weddingService';
 import { auth, loginWithGoogle, isConfigured } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+
+const DEFAULT_PHOTOS = [
+  'https://images.unsplash.com/photo-1511285560929-86b16dfe1ad7?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1465495910484-23b15d02eb39?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1532712938310-34cb3982ef74?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1517457373958-b7bdd458ad20?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1522673607200-1648832cee33?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&q=80&w=800',
+];
+
+function PhotoCarousel({ photos }: { photos?: string[] }) {
+  const [index, setIndex] = React.useState(0);
+  const displayPhotos = photos && photos.length > 0 ? photos : DEFAULT_PHOTOS;
+
+  const next = () => setIndex((prev) => (prev + 1) % displayPhotos.length);
+  const prev = () => setIndex((prev) => (prev - 1 + displayPhotos.length) % displayPhotos.length);
+
+  return (
+    <div className="relative w-full overflow-hidden py-10">
+      <div className="flex items-center justify-center gap-4 px-4">
+        <button 
+          onClick={prev}
+          className="p-2 rounded-full bg-white/80 shadow-lg text-primary hover:bg-white transition-colors z-20 md:flex hidden"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+
+        <div className="flex items-center justify-center gap-2 md:gap-8 min-h-[300px] md:min-h-[450px]">
+          {/* Lado Esquerdo */}
+          <motion.div 
+            key={`left-${index}`}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 0.5, scale: 0.8 }}
+            className="w-24 md:w-64 h-32 md:h-80 rounded-2xl overflow-hidden shadow-sm hidden sm:block grayscale"
+          >
+            <img src={displayPhotos[(index - 1 + displayPhotos.length) % displayPhotos.length]} className="w-full h-full object-cover" alt="" />
+          </motion.div>
+
+          {/* Central */}
+          <motion.div 
+            key={`center-${index}`}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1.1 }}
+            transition={{ duration: 0.5 }}
+            className="w-64 md:w-[500px] h-80 md:h-[450px] rounded-[2rem] overflow-hidden shadow-2xl z-10 ring-8 ring-white/50"
+          >
+            <img src={displayPhotos[index]} className="w-full h-full object-cover" alt="" />
+          </motion.div>
+
+          {/* Lado Direito */}
+          <motion.div 
+            key={`right-${index}`}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 0.5, scale: 0.8 }}
+            className="w-24 md:w-64 h-32 md:h-80 rounded-2xl overflow-hidden shadow-sm hidden sm:block grayscale"
+          >
+            <img src={displayPhotos[(index + 1) % displayPhotos.length]} className="w-full h-full object-cover" alt="" />
+          </motion.div>
+        </div>
+
+        <button 
+          onClick={next}
+          className="p-2 rounded-full bg-white/80 shadow-lg text-primary hover:bg-white transition-colors z-20 md:flex hidden"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+      </div>
+
+      <div className="flex justify-center gap-2 mt-8">
+        {displayPhotos.map((_, i) => (
+          <button 
+            key={i}
+            onClick={() => setIndex(i)}
+            className={`w-2 h-2 rounded-full transition-all ${index === i ? 'bg-primary w-6' : 'bg-stone-300'}`}
+          />
+        ))}
+      </div>
+      
+      {/* Mobile controls */}
+      <div className="flex justify-center gap-10 mt-6 md:hidden">
+        <button onClick={prev} className="p-3 bg-white rounded-full shadow-md text-primary"><ChevronLeft /></button>
+        <button onClick={next} className="p-3 bg-white rounded-full shadow-md text-primary"><ChevronRight /></button>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const [view, setView] = React.useState<'landing' | 'rsvp' | 'admin'>('landing');
@@ -227,6 +317,18 @@ function LandingView({ settings, onSearch }: { settings: WeddingSettings, onSear
             </div>
           </div>
         </Card>
+
+        {/* Localização Extra for Photos or Memories */}
+        <div className="mt-16 space-y-10">
+          <div className="text-center space-y-2">
+            <h2 className="text-4xl text-primary">Nossa História</h2>
+            <p className="text-stone-400 font-serif italic text-lg whitespace-pre-line">
+              Cada momento que vivemos nos trouxe até aqui.
+            </p>
+          </div>
+          
+          <PhotoCarousel photos={settings.photos} />
+        </div>
       </div>
       
       <footer className="mt-auto py-10 text-center text-stone-400 text-xs tracking-widest uppercase">
@@ -743,6 +845,20 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
               </div>
               <div className="md:col-span-2">
                 <Input label="Mensagem de Boas-vindas" value={localSettings.welcomeMessage} onChange={(v) => setLocalSettings({...localSettings, welcomeMessage: v})} />
+              </div>
+              
+              <div className="md:col-span-2 pt-4 border-t border-stone-100">
+                <p className="text-sm font-bold mb-2">Fotos do Carrossel (URLs separadas por vírgula)</p>
+                <textarea 
+                  className="w-full h-32 p-3 text-sm border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  value={localSettings.photos?.join(', ') || ''}
+                  onChange={e => {
+                    const urls = e.target.value.split(',').map(s => s.trim()).filter(s => s !== '');
+                    setLocalSettings({...localSettings, photos: urls});
+                  }}
+                  placeholder="https://imagem1.jpg, https://imagem2.jpg..."
+                />
+                <p className="text-[10px] text-stone-400 mt-1">Dica: Use links de imagens públicas do Google Drive, Dropbox ou similares.</p>
               </div>
             </div>
             <Button variant="primary" className="w-full py-4" onClick={handleSaveSettings}>
