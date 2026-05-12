@@ -31,11 +31,18 @@ export default function App() {
     }
     
     // Admin check
-    if (window.location.hash === '#admin') {
-      setView('admin');
-    }
+    const checkAdmin = () => {
+      if (window.location.hash === '#admin') {
+        setView('admin');
+      } else if (!window.location.search.includes('t=')) {
+        setView('landing');
+      }
+    };
 
+    checkAdmin();
     loadSettings();
+    window.addEventListener('hashchange', checkAdmin);
+    return () => window.removeEventListener('hashchange', checkAdmin);
   }, []);
 
   const loadSettings = async () => {
