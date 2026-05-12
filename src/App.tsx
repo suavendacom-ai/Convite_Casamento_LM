@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { MapPin, Calendar, Clock, ChevronRight, Trash2, Edit, Copy, Check } from 'lucide-react';
+import { MapPin, Calendar, Clock, ChevronRight, Trash2, Edit, Copy, Check, Car } from 'lucide-react';
 import { Button, Input, Card } from './components/UI';
 import { WeddingSettings, GuestGroup } from './types';
 import { WeddingService } from './services/weddingService';
@@ -61,7 +61,7 @@ export default function App() {
     const defaultSettings: WeddingSettings = {
       coupleNames: 'Luana e Murilo',
       date: '14 de Novembro de 2026',
-      time: '16:00',
+      time: '18:30',
       location: 'Indaia Joinville',
       address: 'Joinville, SC',
       mapUrl: 'https://maps.google.com',
@@ -173,20 +173,37 @@ function LandingView({ settings, onSearch }: { settings: WeddingSettings, onSear
                   <p className="text-sm text-stone-400">Horário da cerimônia</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 col-span-full">
-                <MapPin className="w-5 h-5 text-primary shrink-0 mt-1" />
+              <a 
+                href="https://share.google/aObVSOPpbP9yJEiD2" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-start gap-3 col-span-full group cursor-pointer"
+              >
+                <MapPin className="w-5 h-5 text-primary shrink-0 mt-1 group-hover:scale-110 transition-transform" />
                 <div>
-                  <p className="font-semibold">{settings.location}</p>
-                  <p className="text-sm text-stone-400 underline cursor-pointer">{settings.address}</p>
+                  <p className="font-semibold group-hover:text-primary transition-colors">{settings.location}</p>
+                  <p className="text-sm text-stone-400 underline">{settings.address}</p>
                 </div>
-              </div>
+              </a>
+              <a 
+                href="https://maps.app.goo.gl/EWVN1MkG4AapvfSR7" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-start gap-3 col-span-full group cursor-pointer pt-2 border-t border-stone-50"
+              >
+                <Car className="w-5 h-5 text-primary shrink-0 mt-1 group-hover:scale-110 transition-transform" />
+                <div>
+                  <p className="font-semibold group-hover:text-primary transition-colors">Estacionamento</p>
+                  <p className="text-sm text-stone-400 underline">Clique para ver o local</p>
+                </div>
+              </a>
             </div>
           </div>
 
           <div className="w-px h-full bg-stone-100 hidden md:block" />
 
           <div className="w-full md:w-80 space-y-6">
-            <h3 className="text-xl text-center">RSVP</h3>
+            <h3 className="text-xl text-center">Já confirmou sua presença?</h3>
             <p className="text-sm text-center text-stone-400">Insira o código do seu convite para confirmar presença</p>
             <div className="space-y-4">
               <Input 
