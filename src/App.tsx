@@ -414,7 +414,7 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
                 variant="outline" 
                 className="w-full"
                 onClick={() => {
-                  if (password === '123456') {
+                  if (password === '25155295') {
                     setMasterAuth(true);
                   } else {
                     alert('Senha incorreta!');
@@ -439,7 +439,7 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
           
           <div className="p-4 bg-amber-50 rounded-xl text-left border border-amber-200">
             <p className="text-sm text-amber-800 font-bold mb-2">Dica de Atalho:</p>
-            <p className="text-xs text-amber-700">Para entrar agora sem configurar o banco, use a senha <b>123456</b> na tela de login anterior.</p>
+            <p className="text-xs text-amber-700">Para entrar agora sem configurar o banco, use a senha <b>25155295</b> na tela de login anterior.</p>
             <Button 
               hidden 
               variant="outline" 
@@ -447,7 +447,7 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
               className="mt-3 w-full"
               onClick={() => {
                 const pass = prompt("Digite a senha mestre:");
-                if (pass === '123456') setMasterAuth(true);
+                if (pass === '25155295') setMasterAuth(true);
               }}
             >
               Liberar via Senha Mestre
@@ -483,7 +483,10 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
     <div className="min-h-screen bg-stone-100 py-12 px-6">
       <div className="max-w-6xl mx-auto space-y-8">
         <header className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <h1 className="text-4xl text-primary">Dashboard de Controle</h1>
+          <div className="flex flex-col">
+            <h1 className="text-4xl text-primary">Dashboard de Controle</h1>
+            {!isConfigured && <p className="text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded mt-1 border border-amber-100 flex items-center gap-1 w-fit">⚠️ MODO OFFLINE ATIVO - Dados salvos apenas neste navegador</p>}
+          </div>
           <div className="flex gap-2 bg-white p-1 rounded-2xl shadow-sm">
             <button 
               onClick={() => setActiveTab('groups')}

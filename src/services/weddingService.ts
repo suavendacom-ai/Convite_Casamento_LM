@@ -44,85 +44,115 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
 }
 
 export const WeddingService = {
+  // Helpers for local storage fallback
+  _getLocalGroups(): GuestGroup[] {
+    const saved = localStorage.getItem('wedding_guests_fallback');
+    return saved ? JSON.parse(saved) : [];
+  },
+  _saveLocalGroups(groups: GuestGroup[]) {
+    localStorage.setItem('wedding_guests_fallback', JSON.stringify(groups));
+  },
+  _getLocalSettings(): WeddingSettings | null {
+    const saved = localStorage.getItem('wedding_settings_fallback');
+    return saved ? JSON.parse(saved) : null;
+  },
+  _saveLocalSettings(settings: WeddingSettings) {
+    localStorage.setItem('wedding_settings_fallback', JSON.stringify(settings));
+  },
+
   async getSettings(): Promise<WeddingSettings | null> {
-    if (!db || !db.type) return null;
-    const path = 'settings/event';
     try {
-      const docSnap = await getDoc(doc(db, path));
-      return docSnap.exists() ? (docSnap.data() as WeddingSettings) : null;
+      if (!db || !db.type) throw new Error("No DB");
+      const docSnap = await getDoc(doc(db, 'settings/event'));
+      if (docSnap.exists()) {
+        const data = docSnap.data() as WeddingSettings;
+        this._saveLocalSettings(data);
+        return data;
+      }
+      return this._getLocalSettings();
     } catch (error) {
-      handleFirestoreError(error, OperationType.GET, path);
-      return null;
+      console.warn("Using local settings fallback");
+      return this._getLocalSettings();
     }
   },
 
   async updateSettings(settings: WeddingSettings) {
-    if (!db || !db.type) {
-      alert("Firebase não configurado.");
-      return;
-    }
-    const path = 'settings/event';
+    this._saveLocalSettings(settings);
     try {
-      await setDoc(doc(db, path), settings);
+      if (!db || !db.type) return;
+      await setDoc(doc(db, 'settings/event'), settings);
     } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, path);
+      console.error("Failed to sync settings to cloud, saved locally only");
     }
   },
 
   async getGroup(token: string): Promise<GuestGroup | null> {
-    if (!db || !db.type) return null;
-    const path = `guestGroups/${token}`;
     try {
+      if (!db || !db.type) throw new Error("No DB");
       const docSnap = await getDoc(doc(db, 'guestGroups', token));
       if (docSnap.exists()) {
         return { id: docSnap.id, ...docSnap.data() } as GuestGroup;
       }
-      return null;
     } catch (error) {
-      handleFirestoreError(error, OperationType.GET, path);
-      return null;
+      const local = this._getLocalGroups();
+      return local.find(g => g.id === token) || null;
     }
+    return null;
   },
 
   async confirmGroup(token: string, guests: GuestGroup['guests']) {
-    if (!db || !db.type) return;
-    const path = `guestGroups/${token}`;
+    // Update local first
+    const groups = this._getLocalGroups();
+    const idx = groups.findIndex(g => g.id === token);
+    if (idx !== -1) {
+      groups[idx].guests = guests;
+      this._saveLocalGroups(groups);
+    }
+
     try {
+      if (!db || !db.type) return;
       await updateDoc(doc(db, 'guestGroups', token), {
         guests,
         updatedAt: serverTimestamp()
       });
     } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, path);
+      console.error("Failed to sync confirmation to cloud");
     }
   },
 
   async getAllGroups(): Promise<GuestGroup[]> {
-    if (!db || !db.type) return [];
-    const path = 'guestGroups';
     try {
-      const q = query(collection(db, path));
+      if (!db || !db.type) throw new Error("No DB");
+      const q = query(collection(db, 'guestGroups'));
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as GuestGroup));
+      const groups = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as GuestGroup));
+      this._saveLocalGroups(groups);
+      return groups;
     } catch (error) {
-      handleFirestoreError(error, OperationType.QUERY as any, path);
-      return [];
+      console.warn("Using local guest list fallback");
+      return this._getLocalGroups();
     }
   },
 
   async createGroup(group: Omit<GuestGroup, 'id'>) {
-    if (!db || !db.type) return null;
-    const path = `guestGroups/${group.familyName}`;
     const token = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const newGroup = { ...group, id: token };
+    
+    // Save locally
+    const groups = this._getLocalGroups();
+    groups.push(newGroup);
+    this._saveLocalGroups(groups);
+
     try {
+      if (!db || !db.type) return token;
       await setDoc(doc(db, 'guestGroups', token), {
         ...group,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
-      return token;
     } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, path);
+      console.error("Failed to sync new group to cloud, saved locally");
     }
+    return token;
   }
 };
