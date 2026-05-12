@@ -40,7 +40,7 @@ if (isConfigured) {
 export { db, auth, googleProvider, isConfigured };
 
 export async function loginWithGoogle() {
-  if (!isConfigured || !auth.signInWithPopup) {
+  if (!isConfigured || !auth) {
     console.error("Firebase not configured properly");
     return null;
   }

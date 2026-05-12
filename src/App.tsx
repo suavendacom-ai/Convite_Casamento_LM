@@ -24,6 +24,12 @@ export default function App() {
   }, []);
 
   React.useEffect(() => {
+    if (settings?.coupleNames) {
+      document.title = settings.coupleNames;
+    }
+  }, [settings?.coupleNames]);
+
+  React.useEffect(() => {
     // URL token handling
     const params = new URLSearchParams(window.location.search);
     const t = params.get('t');
@@ -386,9 +392,13 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
           <div className="space-y-4">
             <Button 
               onClick={async () => {
-                const u = await loginWithGoogle();
-                if (!u) {
-                  alert("Erro ao conectar com Google. Tente usar a senha abaixo.");
+                try {
+                  const u = await loginWithGoogle();
+                  if (!u) {
+                    alert("Erro ao conectar com Google. Tente usar a senha abaixo.");
+                  }
+                } catch (e: any) {
+                  alert("Erro ao abrir login: " + e.message + "\n\nVerifique se o seu navegador não bloqueou o pop-up.");
                 }
               }} 
               className="w-full"
@@ -497,7 +507,13 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
                   <div className="flex items-center gap-2 mt-1">
                     <p className="text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-100 flex items-center gap-1 w-fit">⚠️ MODO OFFLINE (Acesso via Senha)</p>
                     <button 
-                      onClick={() => loginWithGoogle()}
+                      onClick={async () => {
+                        try {
+                          await loginWithGoogle();
+                        } catch (e: any) {
+                          alert("Falha ao conectar: " + e.message);
+                        }
+                      }}
                       className="text-[10px] bg-primary text-white px-2 py-0.5 rounded font-bold hover:bg-primary/90 transition-colors"
                     >
                       Conectar ao Firebase
