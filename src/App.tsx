@@ -55,7 +55,7 @@ export default function App() {
       address: 'Joinville, SC',
       mapUrl: 'https://maps.google.com',
       heroImageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=2000',
-      welcomeMessage: 'Estamos muito felizes em compartilhar este dia especial com você!'
+      welcomeMessage: 'Estamos muito felizes em compartilhar este dia especial com você!!'
     };
     setSettings(defaultSettings);
 
