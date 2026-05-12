@@ -5,13 +5,13 @@ import configData from './firebase-applet-config.json';
 
 // Support both JSON config (AI Studio) and Env Vars (Vercel)
 const firebaseConfig: any = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_API_KEY || import.meta.env.VITE_apiKey || configData.apiKey,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || import.meta.env.VITE_AUTH_DOMAIN || import.meta.env.VITE_authDomain || configData.authDomain,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || import.meta.env.VITE_PROJECT_ID || import.meta.env.VITE_projectId || configData.projectId,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || import.meta.env.VITE_STORAGE_BUCKET || import.meta.env.VITE_storageBucket || configData.storageBucket,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || import.meta.env.VITE_MESSAGING_SENDER_ID || import.meta.env.VITE_messagingSenderId || configData.messagingSenderId,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || import.meta.env.VITE_APP_ID || import.meta.env.VITE_appId || configData.appId,
-  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || import.meta.env.VITE_DATABASE_ID || import.meta.env.VITE_firestoreDatabaseId || import.meta.env.VITE_databaseId || (configData as any).firestoreDatabaseId,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_API_KEY || import.meta.env.VITE_apiKey || configData.apiKey || "AIzaSyBsIF0abkTCmG9mjvHBNu07Q-0R6AwMKtg",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || import.meta.env.VITE_AUTH_DOMAIN || import.meta.env.VITE_authDomain || configData.authDomain || "gen-lang-client-0900989500.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || import.meta.env.VITE_PROJECT_ID || import.meta.env.VITE_projectId || configData.projectId || "gen-lang-client-0900989500",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || import.meta.env.VITE_STORAGE_BUCKET || import.meta.env.VITE_storageBucket || configData.storageBucket || "gen-lang-client-0900989500.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || import.meta.env.VITE_MESSAGING_SENDER_ID || import.meta.env.VITE_messagingSenderId || configData.messagingSenderId || "517067801623",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || import.meta.env.VITE_APP_ID || import.meta.env.VITE_appId || configData.appId || "1:517067801623:web:8e12f8422faf2248ec4852",
+  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || import.meta.env.VITE_DATABASE_ID || import.meta.env.VITE_firestoreDatabaseId || import.meta.env.VITE_databaseId || (configData as any).firestoreDatabaseId || "ai-studio-deeac3ad-2b95-435e-95c5-fa5e19fdca98",
 };
 
 const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== 'REQUIRED_TO_START' && firebaseConfig.apiKey !== '';
