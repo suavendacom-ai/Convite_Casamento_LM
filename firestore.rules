@@ -37,14 +37,11 @@ service cloud.firestore {
 
     // Guest Groups
     match /guestGroups/{groupId} {
-      allow read: if true; // Anyone with the link can see their group
+      allow read: if true; 
       allow create: if isAdmin() && isValidGuestGroup(incoming());
       allow update: if (isAdmin() || (
-        // Guests can only update their own confirmation status
         incoming().diff(existing()).affectedKeys().hasOnly(['guests', 'updatedAt']) &&
         incoming().guests.size() == existing().guests.size()
-        // Here we'd ideally validate that only the 'confirmed' field changed in the list
-        // but Firestore rules have limits on list iteration.
       )) && isValidGuestGroup(incoming());
       allow delete: if isAdmin();
     }

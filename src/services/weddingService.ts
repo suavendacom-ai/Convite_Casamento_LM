@@ -88,16 +88,26 @@ export const WeddingService = {
 
   async getGroup(token: string): Promise<GuestGroup | null> {
     try {
-      if (!db || !db.type) throw new Error("No DB");
+      if (!db || !db.type || db.type === 'mock') throw new Error("No DB");
       const docSnap = await getDoc(doc(db, 'guestGroups', token));
       if (docSnap.exists()) {
-        return { id: docSnap.id, ...docSnap.data() } as GuestGroup;
+        const data = { id: docSnap.id, ...docSnap.data() } as GuestGroup;
+        // Cache found remote group locally
+        const local = this._getLocalGroups();
+        if (!local.find(l => l.id === token)) {
+          local.push(data);
+          this._saveLocalGroups(local);
+        }
+        return data;
       }
+      // If not in cloud, maybe it's only in local storage
+      const local = this._getLocalGroups();
+      return local.find(g => g.id === token) || null;
     } catch (error) {
+      console.warn("Firestore fetch failed, checking local storage", error);
       const local = this._getLocalGroups();
       return local.find(g => g.id === token) || null;
     }
-    return null;
   },
 
   async confirmGroup(token: string, guests: GuestGroup['guests']) {
@@ -121,16 +131,26 @@ export const WeddingService = {
   },
 
   async getAllGroups(): Promise<GuestGroup[]> {
+    const local = this._getLocalGroups();
     try {
-      if (!db || !db.type) throw new Error("No DB");
-      const q = query(collection(db, 'guestGroups'));
+      if (!db || !db.type || db.type === 'mock') return local;
+      const q = collection(db, 'guestGroups'); 
       const querySnapshot = await getDocs(q);
-      const groups = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as GuestGroup));
-      this._saveLocalGroups(groups);
-      return groups;
+      const remote = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as GuestGroup));
+      
+      // Merge: remote has priority, but keep local items not yet synced
+      const merged = [...remote];
+      local.forEach(l => {
+        if (!merged.find(m => m.id === l.id)) {
+          merged.push(l);
+        }
+      });
+      
+      this._saveLocalGroups(merged);
+      return merged;
     } catch (error) {
-      console.warn("Using local guest list fallback");
-      return this._getLocalGroups();
+      console.error("Failed to fetch groups from Firebase", error);
+      return local;
     }
   },
 
@@ -138,21 +158,28 @@ export const WeddingService = {
     const token = Math.random().toString(36).substring(2, 8).toUpperCase();
     const newGroup = { ...group, id: token };
     
-    // Save locally
+    // Save locally first so it's not lost
     const groups = this._getLocalGroups();
     groups.push(newGroup);
     this._saveLocalGroups(groups);
 
     try {
-      if (!db || !db.type) return token;
+      if (!db || !db.type || db.type === 'mock') {
+        console.warn("Firebase not ready, group saved ONLY locally.");
+        return token;
+      }
+      
       await setDoc(doc(db, 'guestGroups', token), {
-        ...group,
+        familyName: group.familyName,
+        guests: group.guests,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
+      return token;
     } catch (error) {
-      console.error("Failed to sync new group to cloud, saved locally");
+      console.error("Firestore sync failed:", error);
+      // We return the token because it's saved locally, but we should probably alert the user
+      throw new Error("Local save OK, but failed to sync to Cloud. Check Firebase rules.");
     }
-    return token;
   }
 };

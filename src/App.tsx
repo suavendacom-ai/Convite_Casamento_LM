@@ -330,16 +330,15 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
       const guests = newGuestNames.split(',').map(n => ({ name: n.trim(), confirmed: null }));
       const token = await WeddingService.createGroup({ familyName: newGroupName, guests });
       if (token) {
-        alert(`Grupo criado! Código: ${token}`);
+        alert(`Grupo criado! Código: ${token}\n\nNota: Se você estiver offline, o código foi salvo apenas neste navegador.`);
         setNewGroupName('');
         setNewGuestNames('');
         loadGroups();
-      } else {
-        alert('Erro ao criar grupo. Verifique se o Firebase está configurado corretamente.');
       }
-    } catch (e) {
-      alert('Falha na comunicação com o banco de dados. O Firebase está ativo?');
+    } catch (e: any) {
+      alert(`Atenção: O grupo foi salvo NO NAVEGADOR, mas NÃO sincronizou com o Firebase (Erro: ${e.message}). \n\nIsso geralmente acontece se as regras do banco de dados não permitirem o seu usuário.`);
       console.error(e);
+      loadGroups();
     }
   };
 
@@ -486,9 +485,13 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
           <div className="flex flex-col">
             <h1 className="text-4xl text-primary">Dashboard de Controle</h1>
             {!isConfigured ? (
-              <p className="text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded mt-1 border border-amber-100 flex items-center gap-1 w-fit">⚠️ AMBIENTE NÃO CONFIGURADO - Redirecionando para modo local</p>
+              <p className="text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded mt-1 border border-amber-100 flex items-center gap-1 w-fit">⚠️ MODO LOCAL - Dados salvos apenas neste navegador</p>
             ) : (
-              <p className="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded mt-1 border border-green-100 flex items-center gap-1 w-fit">✅ CONECTADO AO FIREBASE</p>
+              <div className="flex flex-col gap-1">
+                <p className="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded mt-1 border border-green-100 flex items-center gap-1 w-fit">✅ CONECTADO AO FIREBASE</p>
+                {user && <p className="text-[9px] text-stone-400 font-mono">UID: {user.uid}</p>}
+                {masterAuth && <p className="text-[9px] text-blue-500 font-bold uppercase tracking-tighter">Acesso via Senha Mestre</p>}
+              </div>
             )}
           </div>
           <div className="flex gap-2 bg-white p-1 rounded-2xl shadow-sm">
