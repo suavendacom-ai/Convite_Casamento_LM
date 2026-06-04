@@ -923,15 +923,23 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          if (file.size > 500000) {
-                            alert("Foto muito pesada! Tente uma imagem com menos de 500kb.");
+                          if (file.size > 15000000) {
+                            alert("Foto extremamente pesada! Tente uma imagem com menos de 15MB.");
                             return;
                           }
                           const reader = new FileReader();
                           reader.onloadend = () => {
-                            const base64 = reader.result as string;
-                            const currentPhotos = localSettings.photos || [];
-                            setLocalSettings({...localSettings, photos: [...currentPhotos, base64]});
+                            const base64Str = reader.result as string;
+                            compressImage(base64Str, 800, 800, 0.6)
+                              .then((compressedB64) => {
+                                const currentPhotos = localSettings.photos || [];
+                                setLocalSettings({...localSettings, photos: [...currentPhotos, compressedB64]});
+                              })
+                              .catch((err) => {
+                                console.error("Erro ao comprimir imagem:", err);
+                                const currentPhotos = localSettings.photos || [];
+                                setLocalSettings({...localSettings, photos: [...currentPhotos, base64Str]});
+                              });
                           };
                           reader.readAsDataURL(file);
                         }
@@ -965,4 +973,42 @@ function AdminDashboard({ settings, onUpdateSettings, user, isConfigured, master
       </div>
     </div>
   );
+}
+
+function compressImage(base64Str: string, maxWidth = 800, maxHeight = 800, quality = 0.6): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = base64Str;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+      } else {
+        if (height > maxHeight) {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(base64Str);
+        return;
+      }
+      ctx.drawImage(img, 0, 0, width, height);
+      const res = canvas.toDataURL('image/jpeg', quality);
+      resolve(res);
+    };
+    img.onerror = (err) => {
+      reject(err);
+    };
+  });
 }
