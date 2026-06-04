@@ -20,6 +20,27 @@ const DEFAULT_PHOTOS = [
   'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&q=80&w=800',
 ];
 
+function BotanicalOrnament() {
+  return (
+    <svg 
+      viewBox="0 0 200 200" 
+      className="w-48 h-48 md:w-80 md:h-80 text-stone-400 opacity-20 pointer-events-none select-none"
+      fill="currentColor"
+    >
+      <path d="M 10,190 C 40,150 120,80 180,20 C 160,40 120,60 100,50 C 90,75 60,88 50,110 C 42,90 30,75 12,80 C 16,55 24,35 0,10 Z" />
+      <path d="M 40,60 Q 55,20 80,45 Q 60,70 40,60" />
+      <path d="M 80,80 Q 110,50 125,75 Q 98,100 80,80" />
+      <path d="M 115,110 Q 150,90 160,120 Q 130,135 115,110" />
+      <path d="M 30,110 Q 10,80 30,70 Q 50,95 30,110" />
+      <path d="M 60,140 Q 40,110 65,100 Q 80,125 60,140" />
+      <circle cx="180" cy="20" r="4" />
+      <circle cx="80" cy="45" r="3" />
+      <circle cx="125" cy="75" r="3" />
+      <circle cx="160" cy="120" r="3" />
+    </svg>
+  );
+}
+
 function PhotoCarousel({ photos, interval = 2000 }: { photos?: string[], interval?: number }) {
   const [index, setIndex] = React.useState(0);
   const displayPhotos = photos && photos.length > 0 ? photos : DEFAULT_PHOTOS;
@@ -231,7 +252,15 @@ function LandingView({ settings, onSearch }: { settings: WeddingSettings, onSear
   const [inputToken, setInputToken] = React.useState('');
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-[#f9f7f2]">
+      {/* Decorative Botanical Ornaments */}
+      <div className="absolute top-[65vh] left-0 -translate-x-12 -translate-y-12 rotate-0 pointer-events-none select-none z-0">
+        <BotanicalOrnament />
+      </div>
+      <div className="absolute bottom-0 right-0 translate-x-12 translate-y-12 rotate-180 pointer-events-none select-none z-0">
+        <BotanicalOrnament />
+      </div>
+
       {/* Hero Section */}
       <div className="relative h-[60vh] flex items-center justify-center overflow-hidden">
         <img 
@@ -360,8 +389,16 @@ function RSVPView({ settings, group, onBack }: { settings: WeddingSettings, grou
   };
 
   if (done) return (
-    <div className="min-h-screen flex items-center justify-center px-6">
-      <Card className="max-w-md w-full text-center space-y-6 py-12">
+    <div className="min-h-screen flex items-center justify-center px-6 bg-[#f9f7f2] relative overflow-hidden">
+      {/* Decorative Botanical Ornaments */}
+      <div className="absolute top-0 left-0 -translate-x-12 -translate-y-12 rotate-0 pointer-events-none select-none z-0">
+        <BotanicalOrnament />
+      </div>
+      <div className="absolute bottom-0 right-0 translate-x-12 translate-y-12 rotate-180 pointer-events-none select-none z-0">
+        <BotanicalOrnament />
+      </div>
+
+      <Card className="max-w-md w-full text-center space-y-6 py-12 relative z-10">
         <motion.div 
           initial={{ scale: 0 }} 
           animate={{ scale: 1 }} 
@@ -376,14 +413,22 @@ function RSVPView({ settings, group, onBack }: { settings: WeddingSettings, grou
   );
 
   return (
-    <div className="min-h-screen py-12 px-6 bg-stone-50">
-      <div className="max-w-2xl mx-auto space-y-8">
+    <div className="min-h-screen py-12 px-6 bg-[#f9f7f2] relative overflow-hidden flex flex-col justify-center">
+      {/* Decorative Botanical Ornaments */}
+      <div className="absolute top-0 left-0 -translate-x-12 -translate-y-12 rotate-0 pointer-events-none select-none z-0">
+        <BotanicalOrnament />
+      </div>
+      <div className="absolute bottom-0 right-0 translate-x-12 translate-y-12 rotate-180 pointer-events-none select-none z-0">
+        <BotanicalOrnament />
+      </div>
+
+      <div className="max-w-2xl mx-auto space-y-8 w-full relative z-10">
         <button onClick={onBack} className="text-primary flex items-center gap-2 hover:underline">
           <ChevronRight className="w-4 h-4 rotate-180" /> Voltar
         </button>
 
         <header className="text-center space-y-4">
-          <h1 className="text-5xl text-primary">Olá, Família {group.familyName}</h1>
+          <h1 className="text-5xl text-primary">Olá, Família Buscapé.</h1>
           <p className="text-stone-500">Por favor, confirme quem estará presente no nosso casamento.</p>
         </header>
 
