@@ -249,10 +249,8 @@ export default function App() {
 }
 
 function LandingView({ settings, onSearch }: { settings: WeddingSettings, onSearch: (t: string) => void }) {
-  const [inputToken, setInputToken] = React.useState('');
-
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden bg-[#f9f7f2]">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-[#f9f7f2] notranslate" translate="no">
       {/* Decorative Botanical Ornaments */}
       <div className="absolute top-[65vh] left-0 -translate-x-12 -translate-y-12 rotate-0 pointer-events-none select-none z-0">
         <BotanicalOrnament />
@@ -284,63 +282,48 @@ function LandingView({ settings, onSearch }: { settings: WeddingSettings, onSear
 
       {/* Info Section */}
       <div className="max-w-4xl mx-auto px-6 -mt-20 relative z-10 w-full pb-20">
-        <Card className="flex flex-col md:flex-row gap-8 items-center text-center md:text-left">
-          <div className="flex-1 space-y-6 w-full">
-            <h2 className="text-3xl text-primary lining-nums">10 anos depois... O grande dia.</h2>
+        <Card className="flex flex-col items-center text-center p-8 md:p-12 space-y-8 bg-white/95 backdrop-blur-md shadow-xl border border-stone-100">
+          <div className="space-y-4 max-w-2xl w-full">
+            <h2 className="text-3xl text-primary font-serif">10 anos depois... O grande dia.</h2>
+            <div className="w-16 h-[1.5px] bg-primary/20 mx-auto" />
             <p className="text-stone-500 leading-relaxed text-center">{settings.welcomeMessage}</p>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left w-full">
-              <div className="flex items-start gap-3">
-                <Calendar className="w-5 h-5 text-primary shrink-0 mt-1" />
-                <div>
-                  <p className="font-semibold">{settings.date}</p>
-                  <p className="text-sm text-stone-400">Marque no calendário</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Clock className="w-5 h-5 text-primary shrink-0 mt-1" />
-                <div>
-                  <p className="font-semibold">{settings.time}</p>
-                  <p className="text-sm text-stone-400">Horário da cerimônia</p>
-                </div>
-              </div>
-              <a 
-                href="https://share.google/aObVSOPpbP9yJEiD2" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-start gap-3 col-span-full group cursor-pointer"
-              >
-                <MapPin className="w-5 h-5 text-primary shrink-0 mt-1 group-hover:scale-110 transition-transform" />
-                <div>
-                  <p className="font-semibold group-hover:text-primary transition-colors">{settings.location}</p>
-                  <p className="text-sm text-stone-400 underline">{settings.address}</p>
-                </div>
-              </a>
-
-            </div>
           </div>
-
-          <div className="w-px h-full bg-stone-100 hidden md:block" />
-
-          <div className="w-full md:w-80 space-y-6">
-            <h3 className="text-xl text-center">Já confirmou sua presença?</h3>
-            <p className="text-sm text-center text-stone-400">Insira o código do seu convite para confirmar presença</p>
-            <div className="space-y-4 notranslate" translate="no">
-              <Input 
-                placeholder="Ex: AB12CD" 
-                value={inputToken} 
-                onChange={(v) => setInputToken(v.toUpperCase())}
-                className="text-center tracking-widest text-xl font-mono uppercase"
-              />
-              <Button 
-                variant="primary" 
-                className="w-full" 
-                onClick={() => onSearch(inputToken)}
-                disabled={!inputToken}
-              >
-                Confirmar Presença
-              </Button>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-8 w-full border-t border-stone-100/60">
+            <div className="flex flex-col items-center text-center space-y-2">
+              <div className="p-3 bg-primary/5 rounded-full text-primary">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-stone-800">{settings.date}</p>
+                <p className="text-xs text-stone-400 mt-1 uppercase tracking-wider">Marque no calendário</p>
+              </div>
             </div>
+
+            <div className="flex flex-col items-center text-center space-y-2">
+              <div className="p-3 bg-primary/5 rounded-full text-primary">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-stone-800">{settings.time}</p>
+                <p className="text-xs text-stone-400 mt-1 uppercase tracking-wider">Horário da cerimônia</p>
+              </div>
+            </div>
+
+            <a 
+              href="https://share.google/aObVSOPpbP9yJEiD2" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex flex-col items-center text-center space-y-2 group cursor-pointer"
+            >
+              <div className="p-3 bg-primary/5 rounded-full text-primary group-hover:scale-110 group-hover:bg-primary/10 transition-all">
+                <MapPin className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-stone-800 group-hover:text-primary transition-colors">{settings.location}</p>
+                <p className="text-xs text-stone-400 underline group-hover:text-primary transition-colors mt-1 uppercase tracking-wider">{settings.address}</p>
+              </div>
+            </a>
           </div>
         </Card>
 

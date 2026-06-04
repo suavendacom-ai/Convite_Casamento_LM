@@ -35,9 +35,9 @@ export function Button({
   );
 }
 
-export function Card({ children, className = "" }: { children: React.ReactNode, className?: string }) {
+export function Card({ children, className = "", ...props }: { children: React.ReactNode, className?: string } & React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`bg-white p-8 rounded-3xl shadow-sm border border-stone-100 ${className}`}>
+    <div className={`bg-white p-8 rounded-3xl shadow-sm border border-stone-100 ${className}`} {...props}>
       {children}
     </div>
   );
