@@ -231,7 +231,7 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen text-stone-800">
+    <div className="min-h-screen text-stone-800 relative overflow-x-hidden w-full">
       {view === 'landing' && <LandingView settings={settings!} onSearch={handleTokenSearch} />}
       {view === 'rsvp' && currentGroup && <RSVPView settings={settings!} group={currentGroup} onBack={() => setView('landing')} />}
       {view === 'admin' && (
