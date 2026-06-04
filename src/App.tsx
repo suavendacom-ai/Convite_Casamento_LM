@@ -285,11 +285,11 @@ function LandingView({ settings, onSearch }: { settings: WeddingSettings, onSear
       {/* Info Section */}
       <div className="max-w-4xl mx-auto px-6 -mt-20 relative z-10 w-full pb-20">
         <Card className="flex flex-col md:flex-row gap-8 items-center text-center md:text-left">
-          <div className="flex-1 space-y-6">
+          <div className="flex-1 space-y-6 w-full">
             <h2 className="text-3xl text-primary lining-nums">10 anos depois... O grande dia.</h2>
             <p className="text-stone-500 leading-relaxed text-center">{settings.welcomeMessage}</p>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left w-full">
               <div className="flex items-start gap-3">
                 <Calendar className="w-5 h-5 text-primary shrink-0 mt-1" />
                 <div>
@@ -325,7 +325,7 @@ function LandingView({ settings, onSearch }: { settings: WeddingSettings, onSear
           <div className="w-full md:w-80 space-y-6">
             <h3 className="text-xl text-center">Já confirmou sua presença?</h3>
             <p className="text-sm text-center text-stone-400">Insira o código do seu convite para confirmar presença</p>
-            <div className="space-y-4">
+            <div className="space-y-4 notranslate" translate="no">
               <Input 
                 placeholder="Ex: AB12CD" 
                 value={inputToken} 
@@ -426,23 +426,27 @@ function RSVPView({ settings, group, onBack }: { settings: WeddingSettings, grou
         </button>
 
         <header className="text-center space-y-4">
-          <h1 className="text-5xl text-white font-serif drop-shadow-md">Olá, Família Buscapé.</h1>
+          <h1 className="text-5xl text-white font-serif drop-shadow-md">
+            Olá, <span className="notranslate" translate="no">{group?.familyName || 'Convidado'}</span>.
+          </h1>
           <p className="text-stone-200">Por favor, confirme quem estará presente no nosso casamento.</p>
         </header>
 
-        <Card className="space-y-6 bg-white/95 backdrop-blur-md shadow-2xl">
+        <Card className="space-y-6 bg-white/95 backdrop-blur-md shadow-2xl notranslate" translate="no">
           <div className="space-y-4">
             {guests.map((guest, idx) => (
               <div key={idx} className="flex items-center justify-between py-4 border-b border-stone-100 last:border-0">
-                <span className="text-xl font-serif text-stone-800">{guest.name}</span>
+                <span className="text-xl font-serif text-stone-800 notranslate" translate="no">{guest.name}</span>
                 <div className="flex gap-2">
                   <button 
+                    type="button"
                     onClick={() => handleToggle(idx, true)}
                     className={`px-4 py-2 rounded-xl transition-all ${guest.confirmed === true ? 'bg-green-100 text-green-700 ring-1 ring-green-200 font-medium' : 'bg-stone-50 text-stone-400 hover:bg-stone-100'}`}
                   >
                     Vou
                   </button>
                   <button 
+                    type="button"
                     onClick={() => handleToggle(idx, false)}
                     className={`px-4 py-2 rounded-xl transition-all ${guest.confirmed === false ? 'bg-red-50 text-red-600 ring-1 ring-red-100 font-medium' : 'bg-stone-50 text-stone-400 hover:bg-stone-100'}`}
                   >
