@@ -419,7 +419,7 @@ function RSVPView({ settings, group, onBack }: { settings: WeddingSettings, grou
 
         <header className="text-center space-y-4">
           <h1 className="text-5xl text-white font-serif drop-shadow-md">
-            Olá, <span className="notranslate" translate="no">{displayFamilyName}</span>.
+            Olá, <span className="notranslate" translate="no">Família Buscapé</span>.
           </h1>
           <p className="text-stone-200">Por favor, confirme quem estará presente no nosso casamento.</p>
         </header>
