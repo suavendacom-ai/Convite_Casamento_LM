@@ -286,7 +286,7 @@ function LandingView({ settings, onSearch }: { settings: WeddingSettings, onSear
       <div className="max-w-4xl mx-auto px-6 -mt-20 relative z-10 w-full pb-20">
         <Card className="flex flex-col md:flex-row gap-8 items-center text-center md:text-left">
           <div className="flex-1 space-y-6">
-            <h2 className="text-3xl text-primary lining-nums">10 anos depois... O grande dia</h2>
+            <h2 className="text-3xl text-primary lining-nums">10 anos depois... O grande dia.</h2>
             <p className="text-stone-500 leading-relaxed text-center">{settings.welcomeMessage}</p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -389,16 +389,15 @@ function RSVPView({ settings, group, onBack }: { settings: WeddingSettings, grou
   };
 
   if (done) return (
-    <div className="min-h-screen flex items-center justify-center px-6 bg-[#f9f7f2] relative overflow-hidden">
-      {/* Decorative Botanical Ornaments */}
-      <div className="absolute top-0 left-0 -translate-x-12 -translate-y-12 rotate-0 pointer-events-none select-none z-0">
-        <BotanicalOrnament />
-      </div>
-      <div className="absolute bottom-0 right-0 translate-x-12 translate-y-12 rotate-180 pointer-events-none select-none z-0">
-        <BotanicalOrnament />
-      </div>
+    <div className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
+      <img 
+        src={settings.heroImageUrl} 
+        alt="Wedding" 
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
 
-      <Card className="max-w-md w-full text-center space-y-6 py-12 relative z-10">
+      <Card className="max-w-md w-full text-center space-y-6 py-12 relative z-10 bg-white/95 backdrop-blur-md shadow-2xl">
         <motion.div 
           initial={{ scale: 0 }} 
           animate={{ scale: 1 }} 
@@ -413,40 +412,39 @@ function RSVPView({ settings, group, onBack }: { settings: WeddingSettings, grou
   );
 
   return (
-    <div className="min-h-screen py-12 px-6 bg-[#f9f7f2] relative overflow-hidden flex flex-col justify-center">
-      {/* Decorative Botanical Ornaments */}
-      <div className="absolute top-0 left-0 -translate-x-12 -translate-y-12 rotate-0 pointer-events-none select-none z-0">
-        <BotanicalOrnament />
-      </div>
-      <div className="absolute bottom-0 right-0 translate-x-12 translate-y-12 rotate-180 pointer-events-none select-none z-0">
-        <BotanicalOrnament />
-      </div>
+    <div className="min-h-screen py-12 px-6 relative overflow-hidden flex flex-col justify-center">
+      <img 
+        src={settings.heroImageUrl} 
+        alt="Wedding" 
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
 
       <div className="max-w-2xl mx-auto space-y-8 w-full relative z-10">
-        <button onClick={onBack} className="text-primary flex items-center gap-2 hover:underline">
+        <button onClick={onBack} className="text-white flex items-center gap-2 hover:underline">
           <ChevronRight className="w-4 h-4 rotate-180" /> Voltar
         </button>
 
         <header className="text-center space-y-4">
-          <h1 className="text-5xl text-primary">Olá, Família Buscapé.</h1>
-          <p className="text-stone-500">Por favor, confirme quem estará presente no nosso casamento.</p>
+          <h1 className="text-5xl text-white font-serif drop-shadow-md">Olá, Família Buscapé.</h1>
+          <p className="text-stone-200">Por favor, confirme quem estará presente no nosso casamento.</p>
         </header>
 
-        <Card className="space-y-6">
+        <Card className="space-y-6 bg-white/95 backdrop-blur-md shadow-2xl">
           <div className="space-y-4">
             {guests.map((guest, idx) => (
-              <div key={idx} className="flex items-center justify-between py-4 border-bottom border-stone-50 last:border-0">
-                <span className="text-xl font-serif">{guest.name}</span>
+              <div key={idx} className="flex items-center justify-between py-4 border-b border-stone-100 last:border-0">
+                <span className="text-xl font-serif text-stone-800">{guest.name}</span>
                 <div className="flex gap-2">
                   <button 
                     onClick={() => handleToggle(idx, true)}
-                    className={`px-4 py-2 rounded-xl transition-all ${guest.confirmed === true ? 'bg-green-100 text-green-700 ring-1 ring-green-200' : 'bg-stone-50 text-stone-400 hover:bg-stone-100'}`}
+                    className={`px-4 py-2 rounded-xl transition-all ${guest.confirmed === true ? 'bg-green-100 text-green-700 ring-1 ring-green-200 font-medium' : 'bg-stone-50 text-stone-400 hover:bg-stone-100'}`}
                   >
                     Vou
                   </button>
                   <button 
                     onClick={() => handleToggle(idx, false)}
-                    className={`px-4 py-2 rounded-xl transition-all ${guest.confirmed === false ? 'bg-red-50 text-red-600 ring-1 ring-red-100' : 'bg-stone-50 text-stone-400 hover:bg-stone-100'}`}
+                    className={`px-4 py-2 rounded-xl transition-all ${guest.confirmed === false ? 'bg-red-50 text-red-600 ring-1 ring-red-100 font-medium' : 'bg-stone-50 text-stone-400 hover:bg-stone-100'}`}
                   >
                     Não vou
                   </button>
