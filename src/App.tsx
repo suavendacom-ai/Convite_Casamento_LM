@@ -286,8 +286,8 @@ function LandingView({ settings, onSearch }: { settings: WeddingSettings, onSear
       <div className="max-w-4xl mx-auto px-6 -mt-20 relative z-10 w-full pb-20">
         <Card className="flex flex-col md:flex-row gap-8 items-center text-center md:text-left">
           <div className="flex-1 space-y-6">
-            <h2 className="text-3xl text-primary lining-nums">10 ANOS DEPOIS...</h2>
-            <p className="text-stone-500 leading-relaxed">{settings.welcomeMessage}</p>
+            <h2 className="text-3xl text-primary lining-nums">10 anos depois... O grande dia</h2>
+            <p className="text-stone-500 leading-relaxed text-center">{settings.welcomeMessage}</p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-start gap-3">
