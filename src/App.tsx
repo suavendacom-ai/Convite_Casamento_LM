@@ -284,7 +284,7 @@ function LandingView({ settings, onSearch }: { settings: WeddingSettings, onSear
       <div className="max-w-4xl mx-auto px-6 -mt-20 relative z-10 w-full pb-20">
         <Card className="flex flex-col items-center text-center p-8 md:p-12 space-y-8 bg-white/95 backdrop-blur-md shadow-xl border border-stone-100">
           <div className="space-y-4 max-w-2xl w-full">
-            <h2 className="text-3xl text-primary font-serif">10 anos depois... O grande dia.</h2>
+            <h2 className="text-3xl text-primary font-serif" style={{ fontVariantNumeric: 'lining-nums', fontFeatureSettings: '"lnum" 1' }}>10 anos depois... O grande dia.</h2>
             <div className="w-16 h-[1.5px] bg-primary/20 mx-auto" />
             <p className="text-stone-500 leading-relaxed text-center">{settings.welcomeMessage}</p>
           </div>
@@ -352,6 +352,15 @@ function RSVPView({ settings, group, onBack }: { settings: WeddingSettings, grou
   const [saving, setSaving] = React.useState(false);
   const [done, setDone] = React.useState(false);
 
+  const displayFamilyName = React.useMemo(() => {
+    const name = group?.familyName || 'Convidado';
+    if (name.toLowerCase() === 'convidado') return name;
+    if (name.toLowerCase().startsWith('família') || name.toLowerCase().startsWith('familia')) {
+      return name;
+    }
+    return `Família ${name}`;
+  }, [group?.familyName]);
+
   const handleToggle = (index: number, confirmed: boolean) => {
     const newGuests = [...guests];
     newGuests[index] = { ...newGuests[index], confirmed };
@@ -410,7 +419,7 @@ function RSVPView({ settings, group, onBack }: { settings: WeddingSettings, grou
 
         <header className="text-center space-y-4">
           <h1 className="text-5xl text-white font-serif drop-shadow-md">
-            Olá, <span className="notranslate" translate="no">{group?.familyName || 'Convidado'}</span>.
+            Olá, <span className="notranslate" translate="no">{displayFamilyName}</span>.
           </h1>
           <p className="text-stone-200">Por favor, confirme quem estará presente no nosso casamento.</p>
         </header>
