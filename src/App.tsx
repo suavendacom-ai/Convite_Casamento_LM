@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { MapPin, Calendar, Clock, ChevronRight, Trash2, Edit, Copy, Check, Car, ChevronLeft } from 'lucide-react';
+import { MapPin, Calendar, Clock, ChevronRight, Trash2, Edit, Copy, Check, ChevronLeft } from 'lucide-react';
 import { Button, Input, Card } from './components/UI';
 import { WeddingSettings, GuestGroup } from './types';
 import { WeddingService } from './services/weddingService';
@@ -257,7 +257,7 @@ function LandingView({ settings, onSearch }: { settings: WeddingSettings, onSear
       <div className="max-w-4xl mx-auto px-6 -mt-20 relative z-10 w-full pb-20">
         <Card className="flex flex-col md:flex-row gap-8 items-center text-center md:text-left">
           <div className="flex-1 space-y-6">
-            <h2 className="text-3xl text-primary">O Grande Dia</h2>
+            <h2 className="text-3xl text-primary lining-nums">10 ANOS DEPOIS...</h2>
             <p className="text-stone-500 leading-relaxed">{settings.welcomeMessage}</p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -287,18 +287,7 @@ function LandingView({ settings, onSearch }: { settings: WeddingSettings, onSear
                   <p className="text-sm text-stone-400 underline">{settings.address}</p>
                 </div>
               </a>
-              <a 
-                href="https://maps.app.goo.gl/EWVN1MkG4AapvfSR7" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-start gap-3 col-span-full group cursor-pointer pt-2 border-t border-stone-50"
-              >
-                <Car className="w-5 h-5 text-primary shrink-0 mt-1 group-hover:scale-110 transition-transform" />
-                <div>
-                  <p className="font-semibold group-hover:text-primary transition-colors">Estacionamento</p>
-                  <p className="text-sm text-stone-400 underline">Clique para ver o local</p>
-                </div>
-              </a>
+
             </div>
           </div>
 
